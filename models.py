@@ -1,7 +1,7 @@
 from enum import Enum
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, func, MetaData
+from sqlalchemy import Column, MetaData, func
 from sqlalchemy.dialects.postgresql import JSONB
 
 naming_convention = {

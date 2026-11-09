@@ -1,5 +1,6 @@
 import time
-from typing import Type, Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 import requests
 
@@ -209,7 +210,7 @@ class Lead(BaseEntity):
             return
 
 
-def amocrm_get(obj_cls: Type[BaseEntity],
+def amocrm_get(obj_cls: type[BaseEntity],
                page: int = None,
                limit: int = 250,
                _filter: dict = None,
@@ -233,7 +234,7 @@ def amocrm_get(obj_cls: Type[BaseEntity],
         else:
             params['with'] = _with
     if query:
-        params[f'query'] = query
+        params['query'] = query
 
     headers = {}
     base_url = ""

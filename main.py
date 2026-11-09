@@ -1,13 +1,18 @@
 import logging
-from typing import Iterator, List, Dict
+from collections.abc import Iterator
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm.attributes import flag_modified
 
-from abstract_customer import get_abccustomer_by_lead_login, create_or_update_customer, \
-    get_abccustomer_by_amocustomer_login, dict_compare_merge, create_or_update_lead
-from amocrm import Customer, COMPANIES, CONTACTS, Lead, amocrm_get
-from models import db, AbstractCustomer
+from abstract_customer import (
+    create_or_update_customer,
+    create_or_update_lead,
+    dict_compare_merge,
+    get_abccustomer_by_amocustomer_login,
+    get_abccustomer_by_lead_login,
+)
+from amocrm import COMPANIES, CONTACTS, Customer, Lead, amocrm_get
+from models import AbstractCustomer, db
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +135,7 @@ def collect_leads_customers(is_full=True):
 
 
 def filter_merge_abstract_customer(abc_customer: AbstractCustomer, attr: str,
-                                   check_ids: List[int]):
+                                   check_ids: list[int]):
     entity = abc_customer.__getattribute__(attr)
     for l in entity:
         entity = [c for c in entity if
@@ -140,7 +145,7 @@ def filter_merge_abstract_customer(abc_customer: AbstractCustomer, attr: str,
         db.session.commit()
 
 
-def filter_abc_customer(abc_customer: AbstractCustomer, ids_map: Dict):
+def filter_abc_customer(abc_customer: AbstractCustomer, ids_map: dict):
     if abc_customer.amo_leads:
         try:
             filter_merge_abstract_customer(abc_customer=abc_customer,

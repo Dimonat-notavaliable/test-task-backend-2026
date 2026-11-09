@@ -1,19 +1,18 @@
 import json
 import logging
 from collections import defaultdict
-from typing import Optional, Dict
 
 from sqlalchemy import text
 
 from amocrm import Customer, Lead
-from models import AbstractCustomer, db, AbcCustomerEntities
+from models import AbcCustomerEntities, AbstractCustomer, db
 
 logger = logging.getLogger(__name__)
 
 
 def update_jsonb_field(entity_id: int,
                        attribute: AbcCustomerEntities,
-                       index: int, new_value: Dict,
+                       index: int, new_value: dict,
                        table_name='abstract_customer'):
     """Обновление jsonb поля в указанной таблице.
     :param table_name: Название таблицы (должно быть прописано).
@@ -67,7 +66,7 @@ def get_lead_json(lead: Lead) -> dict:
     }
 
 
-def get_abccustomer_by_lead_login(lead_login: str) -> Optional[AbstractCustomer]:
+def get_abccustomer_by_lead_login(lead_login: str) -> AbstractCustomer | None:
     customers = db.session.query(AbstractCustomer).filter(
         AbstractCustomer.amo_leads.op('@>')([{'general': {'login': lead_login}}])).all()
 
@@ -80,7 +79,7 @@ def get_abccustomer_by_lead_login(lead_login: str) -> Optional[AbstractCustomer]
     return customers[0]
 
 
-def get_abccustomer_by_amocustomer_login(customer_login: str) -> Optional[AbstractCustomer]:
+def get_abccustomer_by_amocustomer_login(customer_login: str) -> AbstractCustomer | None:
     customers = db.session.query(AbstractCustomer).filter(
         AbstractCustomer.amo_customers.op('@>')([{'general': {'login': customer_login}}])).all()
 
@@ -93,7 +92,7 @@ def get_abccustomer_by_amocustomer_login(customer_login: str) -> Optional[Abstra
     return customers[0]
 
 
-def create_or_update_customer(abstract_customer: Optional[AbstractCustomer], amo_customer: Customer):
+def create_or_update_customer(abstract_customer: AbstractCustomer | None, amo_customer: Customer):
     if abstract_customer is None:
         new_abstract_customer = AbstractCustomer(
             amo_customers=[get_customer_json(amo_customer)],
@@ -120,7 +119,7 @@ def create_or_update_customer(abstract_customer: Optional[AbstractCustomer], amo
     return abstract_customer
 
 
-def create_or_update_lead(abc_customer: Optional[AbstractCustomer], amo_lead: Lead) -> AbstractCustomer:
+def create_or_update_lead(abc_customer: AbstractCustomer | None, amo_lead: Lead) -> AbstractCustomer:
     if abc_customer is None:
         new_abstract_customer = AbstractCustomer(
             amo_leads=[get_lead_json(amo_lead)])
