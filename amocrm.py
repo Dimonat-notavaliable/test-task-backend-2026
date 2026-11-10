@@ -77,9 +77,11 @@ class BaseEntity:
         return str(self)
 
     def get_field(self, field_name):
-        return self.custom_fields_values.get(field_name, {}).get('value')
+        return (self.custom_fields_values or {}).get(field_name, {}).get('value')
 
     def set_field(self, field_name, field_value, field_id=None):
+        if self.custom_fields_values is None:
+            self.custom_fields_values = {}
         custom_field = self.custom_fields_values.get(field_name)
         if custom_field is None:
             if field_id is None:
@@ -208,6 +210,12 @@ class Lead(BaseEntity):
         self.companies = []
         if not _embedded:
             return
+        if _embedded.get(TAGS):
+            self.tags = _embedded.get(TAGS)
+        if _embedded.get(CONTACTS):
+            self.contacts = _embedded.get(CONTACTS)
+        if _embedded.get(COMPANIES):
+            self.companies = _embedded.get(COMPANIES)
 
 
 def amocrm_get(obj_cls: type[BaseEntity],
@@ -263,8 +271,9 @@ def amocrm_get(obj_cls: type[BaseEntity],
         except AmoCrmNoConten:
             break
         if json_data is not None:
+            embedded = json_data.get('_embedded') or {}
             counter = 0
-            for entity in schema.load(json_data['_embedded'][entity_name]):
+            for entity in schema.load(embedded.get(entity_name) or []):
                 counter += 1
                 skip_entity = False
                 if custom_filter:
